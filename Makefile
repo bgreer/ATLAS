@@ -1,5 +1,9 @@
 ### NEED CFITSIO, FFTW, MKL
 
+# Modify the following block as necessary to point to the proper libraries:
+
+######################### BEGIN BLOCK
+
 ### LIBRARIES
 FITSLOC=/shared/cfitsio
 #FITSLOC=/home8/begr7169/SOFTWARE/cfitsio
@@ -14,8 +18,14 @@ MKL = -L/central/intel/mkl/lib/em64t -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_c
 FFTW = -I/shared/fftw/include -L/shared/fftw/lib -lfftw3
 CFITSIO = -L/shared/cfitsio-3.24/lib -lcfitsio 
 
+# ALL C LIBRARIES
 CLIBS = $(MKL) $(CFITSIO) $(FFTW) -lm
+# ALL FORTRAN LIBRARIES
 FLIBS = -I$(FFTWINC) -L$(FFTWLIB) -lfftw3 -L$(FITSLIB) -lcfitsio -I$(FITSINC) $(FLAGS) -I/home8/begr7169/SOFTWARE/openmpi-1.6.5/include -L/home8/begr7169/SOFTWARE/openmpi-1.6.5/lib
+
+######################### END BLOCK
+
+
 
 # FORTRAN COMPILE FLAGS
 FFLAGS = -O2 -ip -ipo -g -CB -free -openmp
@@ -30,7 +40,7 @@ F90 = mpif90
 # C COMPILER
 ICC = icc
 
-
+# name of the final binary
 EXECUTABLE = atlas
 
 FOBJECTS = ParseInput.o \

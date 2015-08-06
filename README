@@ -1,0 +1,36 @@
+
+# WHAT IS ATLAS?
+
+ATLAS is a single-binary code that performs the tile tracking, power spectrum making, and multi-ridge fitting necessary to do high-resolution ring-diagram analysis.
+
+Inputs:
+- a set of full-disk Dopplergrams
+- command-line settings
+- (optional) a grid file, specifying lon/lat coordinates
+Outputs:
+- ring frequency shifts at each disk location, for each mode
+
+# INSTRUCTIONS FOR COMPILING ATLAS
+
+The ATLAS code depends on a few other pieces of software. Here's a list along with versions I have used and links to find them:
+CFITSIO - 3.24 - http://heasarc.nasa.gov/fitsio/fitsio.html
+FFTW - 3.2.1 - http://www.fftw.org/download.html
+MKL - Unknown
+
+You will likely need to modify the provided Makefile, as I often have it set to point to compilers and libraries in my home directory. I've tried to make it fairly easy to modify.
+
+Sometimes FFTW is included in the MKL package on supercomputers, so you may not need to worry about it once you set up the Makefile appropriately. The exact versions of FFTW and MKL are not very important, but sometimes CFITSIO can have issues compiling with random compilers. I haven't had any luck determining why it has such problems, so just be ready.
+
+The ATLAS code is a mix of FORTRAN and C code, for reasons explained above. To generate a single binary from all of the source files, the Makefile (use command 'make') is set to first compile the FORTRAN code into object files, then compile the C code into object files, then finally compile all object files into a single binary. This means that two compilers are needed. I've had luck using mpif90 (from OpenMPI 1.6.5) and icc to compile them. To understand the stages of compiling, check out the end part of the Makefile. Due to strange issues I don't understand, the FORTRAN compiler will choke up on the first step of compiling and throw a bunch of errors blaming the code. If you just type in 'make' again without changing anything, it will often continue ahead and everything will be fine. The binary is by default called 'atlas'. Doing a 'make clean' will delete the binary as well as all of the object files.
+
+# INSTRUCTIONS FOR RUNNING ATLAS
+
+## Simple Example
+
+
+## Full-Scale Run
+ATLAS is a fairly complicated piece of machinery, so running it on a large scale can be tricky.
+
+# INSTRUCTIONS FOR MODIFYING ATLAS
+
+The entry-point for the whole code is in Main.F90
