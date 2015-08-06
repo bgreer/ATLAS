@@ -24,3 +24,12 @@ ATLAS Inputs:
 ATLAS Outputs:
 - ring frequency shifts at each disk location, for each mode
 
+
+For instructions on compiling ATLAS, see
+>COMPILING
+
+For instruction on running ATLAS in various ways, see
+>RUNNING
+
+For a brief guide on modifying the code of ATLAS, see
+>MODIFYING
