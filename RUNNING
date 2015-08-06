@@ -1,0 +1,31 @@
+# INSTRUCTIONS FOR RUNNING ATLAS
+
+## Simple Example
+ATLAS uses command-line options to set what it will do when run. The set of command-line options needed to do something complex can get long, so it's good to make your own scripts that handle it. If you ever can't remember what options are available, run './atlas -h':
+% ./atlas -h
+Minimal Usage: ./atlas
+	Other Options:
+	-v      Verbose Mode
+	-r [#]  Tracking rate (0=car, 1=snod, 2=custom)
+	-ml [file]  Master list of dopplergrams
+	-bk [file]  Background fits file
+	-ts[32,16,8,4,2,1]  Do tilesize [#]
+	-clon [#], -clat [#]  Central lon/lat
+	-lonrn [#], -latrn [#]  Lon/lat ranges
+	-memlimit [#]  Total memory limit in GB
+	-loaddops [#]  Number of dopplergrams to load at a time
+	-time  Record timing info for performance analysis
+	-outdir [dir]  Directory to save output in
+	-mdi  Use MDI settings (dopplergram size, scale, etc)
+	-pspec  Turn tracked tile into an unwrapped pspec
+	-extend  Use extended header info from newer dopplergrams
+	-grid [file]  File to read grid from
+	-fitguess [file]  Guess table for fitting
+	-fitout [file]  File to save fits to (binary)
+	-maxtiles [#]  Number of tiles per MPI process to hold in memory at once
+
+Unfortunately, some of these options are obsolete or perform duplicate tasks. I'll try to clean this up.
+
+## Full-Scale Run
+ATLAS is a fairly complicated piece of machinery, so running it on a large scale can be tricky.
+
