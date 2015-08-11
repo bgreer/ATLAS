@@ -1,8 +1,8 @@
 # INSTRUCTIONS FOR RUNNING ATLAS
 
 ## Simple Example
-ATLAS uses command-line options to set what it will do when run. The set of command-line options needed to do something complex can get long, so it's good to make your own scripts that handle it. If you ever can't remember what options are available, run './atlas -h':
-% ./atlas -h
+ATLAS uses command-line options to set what it will do when run. The set of command-line options needed to do something complex can get long, so it's good to make your own scripts that handle it. If you can't remember what options are available, run './atlas -h':
+> ./atlas -h
 Minimal Usage: ./atlas
 	Other Options:
 	-v      Verbose Mode
@@ -26,6 +26,29 @@ Minimal Usage: ./atlas
 
 Unfortunately, some of these options are obsolete or perform duplicate tasks. I'll try to clean this up.
 
+Here's a simple example for running ATLAS on a workstation, along with a bit about each command-line option:
+
+> export OMP_NUM_THREADS 4
+> mpirun -np 4 ./atlas -v -r 1 -ml doplist -ts16 -clon 180 -clat 0 -lonrn 30 -latrn 30 -densepack 0.5 -loaddops 4 -outdir OUTPUT/ -bk hmi.V_avg120.2099.180.mean.fits
+
+"export OMP_NUM_THREADS 4" - set the environment variable for OpenMP threading to 4 threads. There isn't a way to force ATLAS to use a certain number, so just set this variable instead.
+"mpirun -np 4" - use MPI to launch 4 processes. Between this and the previous command, ATLAS will use 16 cores (but not 100% of the time)
+"-v" - While not necessary, verbose mode is useful for debugging and doesn't actually output that much text
+"-r 1" - Track at the Snodgrass rate. It will take the central latitude of each tile it tracks and shift it by the appropriate rate. The relevant numbers are hard-coded into ATLAS.
+"-ml doplist" - use the text file doplist for a list of each source Dopplergram to use. For info on how this file is formatted, see the section below called "Dopplergram Lists".
+"-ts16" - Do 16-degree tiles. You can do multiple tile sizes in the same run by adding more, but only tile sizes (1,2,4,8,16,32) are allowed.
+"-clon 180 -clat 0" - When creating a grid of tiles, use (180,0) as the central point. The longitude is in CMLon, not disk center coordinates.
+"-lonrn 30 -latrn 0" - The longitude and latitude range are 30 degrees, so make a grid that spans that range.
+"-densepack 0.5" - The fraction of an apodized tile size that adjacent tiles should be spaced out by. Standard densepack is 0.5, high resolution 16-degree analysis is 0.0166667. The resulting spacing in degrees is (tilesize)*(densepack)*(0.9375). The 0.9375 is from apodization.
+"-loaddops 4" - At each tracking step, load 4 source Dopplergrams. Since there are 4 MPI processes, each process will be assigned a single Dopplergram to load.
+"-outdir OUTPUT/" - Write the ring fits to files in OUTPUT/. The files will have a filename assigned by the MPI process it came from. With 4 MPI processes, there will be 4 output files.
+"-bk hmi.V_avg..." - Read in the FITS file to use for background subtraction from the Dopplergrams. These files can be downloaded from the HMI Pipeline, but quite a few can also be found in /antares/sdo/begr7169/BACK/, on hydra.
+
 ## Full-Scale Run
 ATLAS is a fairly complicated piece of machinery, so running it on a large scale can be tricky.
+
+
+
+## Dopplergram Lists
+
 
