@@ -52,3 +52,16 @@ ATLAS is a fairly complicated piece of machinery, so running it on a large scale
 ## Dopplergram Lists
 
 
+## Grid files
+The grid files that can be aread into ATLAS are fairly simple ASCII files. The first line of the file gives the total number of grid locations listed in the file, the number of unique longitudes in the grid, and the unique latitudes in the grid. These numbers should be space-separated. Unfortunately, no part of the code consideres the second two numbers, so they can be set to anything. They were originally added to increase computational efficiency, but I never got around to that.
+
+The lines that follow this single-line header are longitude/latitude pairs, one for each grid point, space-separated. Here's an example grid file:
+3 1 1
+180.0 0.0
+180.0 15.0
+180.0 -15.0
+The header of that grid file indicates there are three grid points that follow, and the locations listed are all at the same longitude and are spaced out in latitude.
+
+In the scripts/ subdirectory there is a grid.sh that can help make grid files. Run "head grid.sh" to get an idea of the command-line parameters to pass it to make a grid file. Since grid files for large analysis jobs can contain hundreds of thousands of grid points, there is an option to split the grid into multiple files. This way, you can run ATLAS individually with each file and not have to wait for an extremely long time to get results. Here's an example of running the script to generate a set of grid files for a high-resolution run:
+./grid.sh gridfile 180 0 90 90 0.25 7500
+This limits the number of grid points in each file to a max of 7500 points. I believe it will result in 18 different grid files.
