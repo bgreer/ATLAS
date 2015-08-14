@@ -48,7 +48,7 @@ then
 	do
 		item=$(ls ${maindir}/*.fits | head -n ${i} | tail -n 1)
 #		echo "./DopTime ${item}"
-		time0=`~/DopTime/DopTime ${item} | head -n 2 | tail -n 1 | sed -e 's/[.]/-/g' | sed -e 's/_/ /g' | sed -e 's/TAI/ /g'`
+		time0=`./DopTime ${item} | head -n 2 | tail -n 1 | sed -e 's/[.]/-/g' | sed -e 's/_/ /g' | sed -e 's/TAI/ /g'`
 #		echo $time0
 		currtime=`date -d "${time0}" +"%s"` # unix time in secs
 		if [ ${prevtime} -gt 0 ]
