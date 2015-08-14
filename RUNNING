@@ -45,9 +45,19 @@ Here's a simple example for running ATLAS on a workstation, along with a bit abo
 "-bk hmi.V_avg..." - Read in the FITS file to use for background subtraction from the Dopplergrams. These files can be downloaded from the HMI Pipeline, but quite a few can also be found in /antares/sdo/begr7169/BACK/, on hydra.
 
 ## Full-Scale Run
-ATLAS is a fairly complicated piece of machinery, so running it on a large scale can be tricky.
+ATLAS is a fairly complicated piece of machinery, so running it on a large scale can be tricky. The file scripts/runjob.sh is a script I've used many times to run ATLAS on the Discover supercomputer.
 
+Generally speaking, these are the steps you need to take to do a large run of ATLAS
+1 - Download Dopplergrams
+2 - Make Dopplergram list
+3 - Download Dopplergram background file
+4 - Generate grid files
+5 - Generate run scripts
+6 - Submit run scripts to queueing system
 
+For a 90x90 degree patch at 0.25 degree resolution, there are 130321 grid points. This requires around 150k cpu-hours to do, which is far more than any supercomputer will allow you to burn in one sitting. On Discover, I've had moderate success using grid files with no more than 7500 points, which results in 18 separate grid files for this case. This also means you need to submit 18 different jobs to the queue. ATLAS outputs ring fits to the disk with filenames that depend on which MPI process is holding the data, so take care to not let the different jobs try to save data in the same directory, they will overwrite each other. Use the -outdir command-line option to prevent this.
+
+In terms of scaling, see the bottom few comments in scripts/runjob.sh for examples of number of cores vs number of threads vs number of tiles and how quickly ATLAS runs. Running on something like 64 nodes for around 8 hours usually does one of these 7500-tile runs.
 
 ## Dopplergram Lists
 The Dopplergram list file is an ASCII file that specifies the filenames of the relevant Dopplergrams, one per line. If you want to track through 2048 Dopplergrams, you need 2048 lines in the file. The tracking part of ATLAS will not check to make sure the Dopplergram files are sequential in time. If there is a gap in the Dopplergram coverage, put a 0 in that line. The tracking code will interpolate over this step once all the other steps are done.
