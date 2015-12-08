@@ -1,0 +1,43 @@
+######################################################################
+1 - Decide on a time range
+
+The standard analysis period is 25.6 hours, which happens to be equal to 2048 45-second intervals. Since the cadence of HMI is 45 seconds, you need 2048 Dopplergrams to make one analysis period. Generally, look for time periods that do not have large gaps. Check http://jsoc.stanford.edu/data/cov.html (45s links) for coverage tables.
+
+Typically, the analysis periods are identified by two numbers, the Carrington rotation and the central meridian longitude. For example, an analysis period labeled as 2096-180 would be from Carrington rotation 2096 (May 2010 ish), and the central time of the analysis period would coincide with the moment that longitude 180 passed the central meridian. The CMLon value decreases as time goes on and jumps from 0 back to 360 due to the rotation direction of the Sun. 15 degrees of rotation is around 27 hrs, so each consecutive analysis period is separated by 15 degrees in CMLon. 
+
+The JSOC system uses timestamps to index Dopplergrams, so in order to find the correct set for a given analysis period, you need to convert CarrRot and CMLon into a real time. This is done with the script findTime:
+
+% cd ATLAS/scripts/
+% ./findTime 2096 180
+2010.05.06_09:13:51
+
+This provides you with the central time of the analysis period, but in order to tell the JSOC server to give you the correct range, you need to know the timestamps for the start and end of the period. There is no stand-alone script for this, so you need to manually add and subtract 12hr 48min from the central time. Doing this gives you a time range:
+
+2010.05.05_20:25:51 to 2010.05.06_22:01:51
+
+This may or may not correspond to 2048 Dopplergrams since I haven't put any thought into the seconds place of the timestamps. If the server gets ready to send you more or less than 2048 (usually by one), adjust the timestamps by a few seconds to fix it.
+
+######################################################################
+2 - Download Dopplergrams
+
+Since we know the exact time range we need Dopplergrams for, we can skip through a lot of the JSOC server pages and get right to the export (download) page. If you want to browse the HMI data to look for other things, the link is http://jsoc.stanford.edu/ajax/lookdata.html
+
+To export data, go to http://jsoc.stanford.edu/ajax/exportdata.html
+
+We will enter a query for HMI Dopplergrams from our time range into the "RecordSet" field. The format of the query is:
+
+hmi.v_45s[STARTTIME-ENDTIME]
+(1)  (2)        (3)
+
+1) We want HMI data
+2) We want Dopplergrams (velocity v) at 45-second cadence
+3) We want a specific range of this data
+For the time span we are currently interested in, the search query would be:
+
+hmi.v_45s[2010.05.05_20:25:51_TAI-2010.05.06_22:01:51_TAI]
+
+Click "Recount" to ask the server how many Dopplergrams are in this range. Adjust the timestamps until the number reads 2048. Change the "Method" field to "url-tar". Enter your email address into the "Notify" field. Enter "none" into the "Requestor" field. Click "Check Params for Export" to make sure everything is set, then click "Submit Export Request". The page will pause while it submits the request and then give you a request ID. A set of 2048 Dopplergrams can take a while to process, from what I remember up to 30 minutes. Click "Submit Status Request" at the bottom to check on the request. If the processing is done, clicking this will reveal a link to download a .tar file with the requested data. I believe you will also get an email when the request is done, but I've had varying luck with this.
+
+######################################################################
+3 - Making a Dopplergram List
+
