@@ -1,0 +1,77 @@
+#!/bin/bash
+
+# used to go from carrington time to clock time?
+
+# find target carringtom time and current carrington time
+# make estimate of seconds between the two
+# iterate a few times
+
+source float6.sh # to do floating point math, 6 decimal places
+# check number of arguments
+if [ $# -lt 2 ]
+then
+	echo "ERROR: Need command-line arguments:"
+	echo "./findTime 2096 180"
+	exit -1
+fi
+
+# find target carrington time
+clonf=$(float_eval "$2 / 360.0")
+clonf=$(float_eval "1.0 - $clonf")
+target=$(float_eval "$1 + $clonf")
+
+# find current carrington time
+inittimeunix=$(date -d "$formatted" +"%s")
+starttime=`date -d "UTC 1970-01-01 $inittimeunix seconds" +"%Y.%m.%d_%H:%M:%S"`
+current=`sunephem2 $starttime | head -n 3 | tail -n 1 | awk '{print $7}'`
+
+# carrington and seconds difference between the two
+carrdiff=$(float_eval "$current - $target")
+secdiff=$(float_eval "$carrdiff * 2356585.9")
+
+# see when this is, how close it is
+guesssecs=$(float_eval "${inittimeunix}-${secdiff}")
+starttime=`date -d "UTC 1970-01-01 $guesssecs seconds" +"%Y.%m.%d_%H:%M:%S"`
+crotf=`sunephem2 $starttime | head -n 3 | tail -n 1 | awk '{print $7}'`
+
+#echo "confirm:"
+#echo $target
+#echo $crotf
+
+# iterate twice more
+carrdiff=$(float_eval "$crotf - $target")
+secdiff=$(float_eval "$carrdiff * 2356585.9")
+#echo "correction 1: " $secdiff
+newguess=$(float_eval "${guesssecs} - ${secdiff}")
+starttime=`date -d "UTC 1970-01-01 $newguess seconds" +"%Y.%m.%d_%H:%M:%S"`
+crotf=`sunephem2 $starttime | head -n 3 | tail -n 1 | awk '{print $7}'`
+carrdiff=$(float_eval "$crotf - $target")
+secdiff=$(float_eval "$carrdiff * 2356585.9")
+#echo "correction 2: " $secdiff
+newguess2=$(float_eval "${newguess} - ${secdiff}")
+starttime=`date -d "UTC 1970-01-01 $newguess2 seconds" +"%Y.%m.%d_%H:%M:%S"`
+crotf=`sunephem2 $starttime | head -n 3 | tail -n 1 | awk '{print $7}'`
+
+# extract clon as integer
+IFS='.' read -ra ADDR <<< "$crotf"
+croti=${ADDR[0]}
+clon=${ADDR[1]}
+clon=`echo "$clon" | awk '{print $1+0}'`
+clon=$(float_eval "1000000.0 - ${clon}")
+clon=$(float_eval "${clon} * 360.0")
+clon=$(float_eval "${clon} / 1000000.0")
+clon=$(printf %.0f $clon) # round
+
+# output result if clon is right
+if [ $clon -eq $2 ]
+then
+	echo $starttime
+	exit 0
+else
+	echo "Failure:"
+	echo $starttime
+	echo $clon
+	exit -1
+fi
+
+exit 0
